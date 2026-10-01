@@ -293,6 +293,7 @@ button.mode:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 @keyframes youp{50%{transform:scale(1.03)}}
 .chip.me{border-color:var(--foam-dim)}
 .chip:disabled{opacity:.45;cursor:default}
+.chip[aria-pressed="true"]:disabled{opacity:1}
 .chip.me:disabled{opacity:1}
 .next:disabled{background:var(--stout-3);color:var(--foam-dim);box-shadow:none;font-family:var(--f-body);font-weight:700;font-size:16px}
 
@@ -317,3 +318,6 @@ button.mode:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .scroll > *, .field > *, .settings > *{flex-shrink:0}
 .logo small{font-size:8px;letter-spacing:.14em}
 .field > .inp{flex:none}
+.updatebar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);padding:12px 18px;border-radius:16px;background:var(--t-wiezou);color:var(--ink);font-weight:800;font-size:14px;box-shadow:0 10px 26px rgba(0,0,0,.5)}
+.toast{bottom:auto;top:calc(72px + env(safe-area-inset-top,0px));transform:translate(-50%,-12px)}
+.toast.show{transform:translate(-50%,0)}

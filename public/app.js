@@ -161,7 +161,7 @@ const net = {
     const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);
     this.ws = ws;
     ws.onopen = () => {
-      this.backoff = 600; setConn(true);
+      this.backoff = 600; setConn(true); checkVersion();
       const q = this.pending; this.pending = [];
       if (V.code && !q.some(m => m.t === "join" || m.t === "create")) ws.send(JSON.stringify({t: "join", code: V.code, pid}));
       q.forEach(m => ws.send(JSON.stringify(m)));
@@ -315,13 +315,15 @@ function renderGame(){
 }
 
 function renderDock(){
-  const g = V.g, c = g.card, on = online(), showWho = c.sips > 0;
+  const g = V.g, c = g.card, on = online(), showWho = c.sips > 0 && c.ready !== false;
   $("#who").hidden = !showWho;
   if (showWho){
-    $("#whoLabel").textContent = c.pick;
+    $("#whoLabel").textContent = c.lock ? "Drinkt" : c.pick + (c.one && !(c.cand && c.cand.length === 1) ? " · kies één" : "");
     $("#whoSips").textContent = "+" + slok(c.sips);
-    $("#chips").innerHTML = g.players.map((p, i) => p.gone ? "" :
-      `<button class="chip ${i === V.me ? "me" : ""}" data-chip="${i}" aria-pressed="${g.sel.includes(i)}" ${BV.canMark(g, V.me, i) ? "" : "disabled"}>${i === V.me ? "Jij" : esc(p.name)}</button>`).join("");
+    // Alleen wie op dit viltje kan drinken; als het spel al besliste alleen de uitslag.
+    const show = c.lock ? g.sel : (c.cand || BV.active(g));
+    $("#chips").innerHTML = show.filter(i => g.players[i] && !g.players[i].gone).map(i =>
+      `<button class="chip ${i === V.me ? "me" : ""}" data-chip="${i}" aria-pressed="${g.sel.includes(i)}" ${BV.canMark(g, V.me, i) ? "" : "disabled"}>${i === V.me && on ? "Jij" : esc(g.players[i].name)}</button>`).join("");
   }
   const you = $("#you");
   const mineSel = on && showWho && g.sel.includes(V.me);
@@ -665,7 +667,7 @@ function openSheet(){
   const g = V.g, on = online(), host = isHost();
   const max = Math.max(1, ...g.players.map(p => p.sips));
   const rows = g.players.map((p, i) => ({p, i})).filter(x => !x.p.gone).sort((a, b) => b.p.sips - a.p.sips).map(({p, i}) => {
-    const can = !on || host || i === V.me;
+    const can = !on || i === V.me;
     return `<div class="srow" style="--c:var(${PCOL[i % PCOL.length]})">
       <span class="n">${i === V.me ? "Jij" : esc(p.name)}${on && !p.online ? " · weg" : ""}</span>
       ${can ? `<button class="sbtn" data-adj="${i}" data-d="-1" aria-label="Eén slok minder">−</button>` : "<span></span>"}
@@ -847,6 +849,23 @@ document.addEventListener("keydown", e => {
     e.preventDefault(); if (!online() || ctrl()) send({t: "next"});
   }
 });
+
+/* ================= Updates ================= */
+// Staat er een nieuwe versie online? Dan een knop om te verversen. Een online spel en een potje op
+// één telefoon gaan daarna gewoon verder (opnieuw verbinden / opgeslagen op de telefoon).
+let bootVersion = null;
+async function checkVersion(){
+  try {
+    const v = (await (await fetch("/version", {cache: "no-store"})).text()).trim();
+    if (!v) return;
+    if (bootVersion === null) bootVersion = v;
+    else if (v !== bootVersion) $("#updateBar").hidden = false;
+  } catch (e) {}
+}
+$("#updateBar").addEventListener("click", () => location.reload());
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkVersion(); });
+setInterval(checkVersion, 2 * 60 * 1000);
+checkVersion();
 
 /* ================= Start ================= */
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));

@@ -8,6 +8,8 @@ const BV = require("../shared/core.js");
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "..");
 const PUBLIC = path.join(ROOT, "public");
+// Versie van deze code: telefoons vergelijken die om te zien of er een update klaarstaat.
+const VERSION = process.env.RENDER_GIT_COMMIT || String(Date.now());
 
 /* ---------- Statische bestanden ---------- */
 const MIME = {
@@ -39,6 +41,7 @@ const server = http.createServer((req, res) => {
   let url;
   try { url = new URL(req.url, "http://x"); } catch { res.writeHead(400); return res.end(); }
   let p = decodeURIComponent(url.pathname);
+  if (p === "/version"){ res.writeHead(200, {"Content-Type": "text/plain", "Cache-Control": "no-store"}); return res.end(VERSION); }
   if (p === "/healthz"){ res.writeHead(200, {"Content-Type": "text/plain"}); return res.end("ok"); }
   if (SPECIAL[p]) return serveFile(res, SPECIAL[p], req);
   if (p === "/" || /^\/[A-Za-z]{4}\/?$/.test(p)) p = "/index.html";   // ook bierviltje.app/ABCD werkt als uitnodiging

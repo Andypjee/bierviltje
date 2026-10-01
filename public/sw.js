@@ -1,5 +1,5 @@
 // Bierviltje service worker: maakt de app installeerbaar en laat "één telefoon" ook zonder internet werken.
-const CACHE = "bierviltje-v1";
+const CACHE = "bierviltje-v2";
 const SHELL = ["/", "/index.html", "/style.css", "/app.js", "/core.js", "/vendor/qrcode.js", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -13,7 +13,7 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.pathname === "/ws") return;
+  if (url.pathname === "/ws" || url.pathname === "/version") return;
   const sameOrigin = url.origin === location.origin;
   const isFont = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
   if (!sameOrigin && !isFont) return;

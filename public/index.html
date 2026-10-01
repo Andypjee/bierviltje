@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bierviltje – het drankspel op je telefoon</title>
+<meta name="description" content="Gratis drankspel in het Nederlands. Speel met één telefoon op tafel, of iedereen op de eigen telefoon met een code. Opdrachten, Ik heb nog nooit, regels, duels en minigames.">
+<meta name="theme-color" content="#1c0b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bierviltje">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bierviltje – het drankspel op je telefoon">
+<meta property="og:description" content="Speel met één telefoon op tafel, of join met een code op je eigen telefoon.">
+<meta property="og:image" content="/icons/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section id="scrHome" class="screen scroll">
+    <div class="hero">
+      <div class="logo"><h1>Bier<br>viltje<small>het drankspel</small></h1></div>
+      <p class="intro">Trek een viltje en doe wat erop staat. Met <b>één telefoon op tafel</b>, of <b>iedereen op de eigen telefoon</b>.</p>
+    </div>
+
+    <div id="resumeBox" hidden></div>
+
+    <div class="field">
+      <label class="lbl" for="myName">Jouw naam</label>
+      <input id="myName" class="inp" maxlength="14" placeholder="Bijvoorbeeld Sanne" autocomplete="nickname" enterkeyhint="done">
+    </div>
+
+    <div class="modes">
+      <button class="mode m-host" id="btnHost">
+        <b>Spel hosten</b><span>Jij kiest de instellingen. De rest doet mee met een code.</span>
+      </button>
+      <div class="mode m-join">
+        <b>Meedoen met code</b>
+        <form id="joinForm" class="joinrow" autocomplete="off">
+          <input id="joinCode" class="inp code" maxlength="4" placeholder="ABCD" autocapitalize="characters" spellcheck="false" aria-label="Code van het spel" enterkeyhint="go">
+          <button type="submit">Doe mee</button>
+        </form>
+      </div>
+      <button class="mode m-local" id="btnLocal">
+        <b>Eén telefoon</b><span>Leg hem in het midden en geef hem door.</span>
+      </button>
+    </div>
+    <p class="err" id="homeErr" hidden></p>
+
+    <div class="install" id="installBox" hidden>
+      <div><b>Zet Bierviltje op je beginscherm</b><span id="installHint">Dan open je het als een app.</span></div>
+      <button id="btnInstall" hidden>Installeren</button>
+    </div>
+
+    <p class="fine">18+ · Drink met verstand · Water telt ook als slok · Niemand hoeft iets</p>
+  </section>
+
+  <!-- LOCAL SETUP -->
+  <section id="scrSetup" class="screen scroll" hidden>
+    <div class="topnav"><button class="back" data-home>Terug</button><span>Eén telefoon</span></div>
+    <div class="field">
+      <div class="lbl"><span>Spelers</span><span class="hint" id="pCount"></span></div>
+      <form id="addForm" class="add" autocomplete="off">
+        <input id="pName" class="inp" maxlength="14" placeholder="Naam toevoegen" enterkeyhint="done" aria-label="Naam van speler">
+        <button type="submit">Toevoegen</button>
+      </form>
+      <div class="plist" id="plist"></div>
+      <p class="hint" id="exNote">Dit zijn voorbeeldnamen. Tik op × en zet jullie eigen namen erin.</p>
+    </div>
+    <div id="localSettings"></div>
+    <p class="err" id="setupErr" hidden></p>
+    <button class="cta" id="btnStartLocal">Trek het eerste viltje</button>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="scrLobby" class="screen scroll" hidden>
+    <div class="topnav"><button class="back" id="btnLeaveLobby">Verlaten</button><span id="lobbyRole"></span></div>
+    <div class="codebox">
+      <div class="codecol">
+        <small>Code van het spel</small>
+        <div class="bigcode" id="bigCode">····</div>
+        <div class="linkrow"><button id="btnShare">Uitnodiging delen</button></div>
+      </div>
+      <div class="qr" id="qr" aria-label="QR-code om mee te doen"></div>
+    </div>
+    <div class="field">
+      <div class="lbl"><span>Wie doen er mee</span><span class="hint" id="lobbyCount"></span></div>
+      <div class="plist" id="lobbyPlayers"></div>
+    </div>
+    <div id="lobbySettings"></div>
+    <p class="err" id="lobbyErr" hidden></p>
+    <button class="cta" id="btnStartOnline">Start het spel</button>
+    <p class="wait" id="lobbyWait" hidden>Wachten tot de host het spel start…</p>
+  </section>
+
+  <!-- GAME -->
+  <section id="scrGame" class="screen game" hidden>
+    <header class="bar">
+      <div class="round"><small>Viltje</small><b id="roundNo">1</b></div>
+      <div class="turn" id="turn"></div>
+      <span class="conn" id="conn" hidden>Verbinden…</span>
+      <button class="ib" id="btnSound" aria-label="Geluid aan of uit"></button>
+      <button class="ib" id="btnScores" aria-label="Stand en regels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>
+      </button>
+    </header>
+    <div class="rules" id="rules"></div>
+    <div class="table"><div class="deck" id="deck"></div></div>
+    <footer class="dock" id="dock">
+      <div class="you" id="you" hidden></div>
+      <div class="who" id="who">
+        <div class="who-l"><span id="whoLabel">Wie drinkt?</span><b id="whoSips"></b></div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <button class="next" id="btnNext">Volgende viltje</button>
+    </footer>
+  </section>
+
+  <!-- END -->
+  <section id="scrEnd" class="screen scroll end" hidden></section>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="flash" class="flash" hidden>BOEM!</div>
+
+<!-- één telefoon: reactieduel op gesplitst scherm -->
+<div id="duelOv" class="duel" hidden>
+  <button class="half top" id="halfTop"><span class="dn"></span><span class="dm"></span></button>
+  <button class="half bot" id="halfBot"><span class="dn"></span><span class="dm"></span></button>
+  <button class="duel-x" id="duelClose" hidden>Terug naar het viltje</button>
+</div>
+
+<!-- online: reactietest op je eigen telefoon -->
+<button id="rxOv" class="rx" hidden><span class="rx-big" id="rxBig">Wacht…</span><span class="rx-small" id="rxSmall">Vinger klaar. Tik pas bij NU!</span></button>
+
+<div id="scrim" class="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-label="Stand"></div></div>
+
+<script src="/vendor/qrcode.js"></script>
+<script src="/core.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Instellingen voor Render.com (gratis webserver). Render leest dit bestand vanzelf.
+services:
+  - type: web
+    name: bierviltje
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
